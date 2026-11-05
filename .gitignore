@@ -1,0 +1,13 @@
+# data & models (too large for Git)
+data/*
+!data/download.py
+!data/DATA_CARD.md
+*.pt
+*.pth
+*.npz
+*.ckpt
+
+# python / jupyter
+__pycache__/
+.ipynb_checkpoints/
+.venv/
