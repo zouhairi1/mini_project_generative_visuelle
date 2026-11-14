@@ -10,7 +10,7 @@ The full plan, with a mind map and progress checkboxes, is in [`impl.md`](impl.m
 |---|---|---|
 | S0 | Setup, repository structure | done |
 | S1 | Data: DermaMNIST 64 × 64, class statistics | done |
-| S2 | Baseline classifier (real data only) | code ready, full run on GPU pending |
+| S2 | Baseline classifier (real data only) | done |
 | S3–S7 | Generative models, evaluation, demo, report | to do |
 
 ## Installation
@@ -54,6 +54,24 @@ docs/        licences, model card, ethics (S7)
 
 DermaMNIST (MedMNIST v3, from HAM10000), licence **CC BY-NC 4.0**. See [`data/DATA_CARD.md`](data/DATA_CARD.md).
 
+## Running on Colab from VS Code
+
+With the VS Code Colab extension, the code runs on Google's machine, so result files stay there. The last cell of each training notebook prints the results as text; save the notebook (Ctrl+S), then extract them locally:
+
+```powershell
+..\.venv\Scripts\python.exe -m src.extract_results notebooks\02_baseline.ipynb
+```
+
 ## Main results
 
-*Filled in after the full runs.*
+### S2 — Baseline classifier (real data only, test set, mean ± std over 3 seeds)
+
+| strategy | macro precision | macro recall | macro F1 | df precision | df recall | df F1 |
+|---|---|---|---|---|---|---|
+| none (R0) | 0.702 ± 0.022 | 0.565 ± 0.009 | 0.587 ± 0.006 | 0.889 ± 0.157 | 0.116 ± 0.020 | 0.205 ± 0.036 |
+| weighted | 0.462 ± 0.006 | 0.644 ± 0.004 | 0.507 ± 0.003 | 0.122 ± 0.007 | 0.522 ± 0.000 | 0.198 ± 0.009 |
+| oversample (R1) | 0.551 ± 0.017 | 0.694 ± 0.013 | 0.603 ± 0.014 | 0.394 ± 0.044 | 0.565 ± 0.071 | 0.464 ± 0.051 |
+
+Trained on real data only, the classifier finds only about 12 % of the dermatofibroma images (df). Oversampling helps most but only repeats the same 80 images: synthetic images will have to beat it.
+
+![Confusion matrices](results/s2_confusion_matrices.png)

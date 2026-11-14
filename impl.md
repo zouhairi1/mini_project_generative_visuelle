@@ -207,9 +207,11 @@ On Colab/Kaggle: `!pip install -r requirements.txt` after cloning the repo.
 
 - [x] Implement `Classifier` + training loop
 - [x] Two extra baselines for a fair comparison: **oversampling** of the rare class and **class-weighted loss**
-- [ ] Train the baseline (3 strategies × 3 seeds) on a Colab GPU and save the best checkpoint
-- [ ] Per-class precision / recall / F1 + confusion matrices → `results/`
-- [ ] Write the interpretation in the notebook
+- [x] Train the baseline (3 strategies × 3 seeds) on a Colab GPU and save the best checkpoint
+- [x] Per-class precision / recall / F1 + confusion matrices → `results/`
+- [x] Write the interpretation in the notebook
+
+**Result (test, mean over 3 seeds):** `none` macro-F1 0.587, df recall 0.116, df F1 0.205 · `weighted` macro-F1 0.507, df F1 0.198 · `oversample` macro-F1 0.603, df recall 0.565, df F1 0.464. Synthetic images must beat **oversampling** (R1), not only the plain baseline (R0).
 
 ---
 
