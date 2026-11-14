@@ -2,6 +2,7 @@
 data/*
 !data/download.py
 !data/DATA_CARD.md
+checkpoints/
 *.pt
 *.pth
 *.npz

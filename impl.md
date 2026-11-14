@@ -170,10 +170,10 @@ pip freeze > mini_project\requirements.txt
 
 On Colab/Kaggle: `!pip install -r requirements.txt` after cloning the repo.
 
-- [ ] Activate `.venv` and install the dependencies (`pyyaml` still missing)
-- [ ] Create `requirements.txt`
+- [x] Activate `.venv` and install the dependencies
+- [x] Create `requirements.txt`
 - [x] `git init`, create the GitHub repo and a `.gitignore`
-- [ ] Add the folder structure above
+- [x] Add the folder structure above
 - [ ] Create GitHub **issues** for every step (S1…S7) and assign members
 - [ ] Agree on a commit convention (for example `feat(cvae): add KL warm-up`)
 - [x] Check that a GPU notebook runs on Colab (`torch.cuda.is_available()`)
@@ -188,10 +188,10 @@ On Colab/Kaggle: `!pip install -r requirements.txt` after cloning the repo.
 2. **Statistics:** count images per class and per split, and plot a bar chart. The imbalance (nv ≈ 67%, df ≈ 1%) motivates the whole project.
 3. **Normalisation:** pixels in `[-1, 1]` to match the `tanh` output of the generators (GAN course, slide 18).
 
-- [ ] Download script `data/download.py`
-- [ ] Class distribution table + bar chart → `results/`
-- [ ] Sample grid: 8 images per class
-- [ ] Write `data/DATA_CARD.md` (source HAM10000, licence, split, biases: mostly light skin, single-centre style)
+- [x] Download script `data/download.py`
+- [x] Class distribution table + bar chart → `results/`
+- [x] Sample grid: 8 images per class (+ mean image per class)
+- [x] Write `data/DATA_CARD.md` (source HAM10000, licence CC BY-NC 4.0, split, biases)
 
 ---
 
@@ -200,14 +200,16 @@ On Colab/Kaggle: `!pip install -r requirements.txt` after cloning the repo.
 **What and why:** the reference point. It answers "how well do we do on the rare class with **real data only**?". The same network also serves as the **feature extractor** for FID and memorization. The GAN course (slide 39) warns that Inception features (trained on ImageNet) are poorly suited to medical images, so domain-specific features are a better choice.
 
 - Model: small CNN (4 conv blocks 32→64→128→256, BatchNorm, GAP, dropout, 7 outputs), or ResNet-18 if the GPU allows.
-- Training: Adam 1e-3, about 20 epochs, horizontal and vertical flips. Select the model on **val balanced accuracy**.
-- Metrics (test): accuracy, **balanced accuracy**, **macro-F1**, and for the **rare class** recall, precision, F1 and one-vs-rest AUC. Include a confusion matrix.
+- Training: Adam 1e-3, about 20 epochs, horizontal and vertical flips. Select the best epoch on **validation macro-F1**.
+- Metrics (test): **precision, recall and F1**, per class and macro-averaged, with a focus on the **rare class df**, plus the **confusion matrix**.
 - Run **3 seeds** and report mean ± std. Single runs are noisy on a class with ~23 test images.
+- Code: `src/models.py`, `src/train_clf.py`, `configs/classifier.yaml`, notebook `02_baseline.ipynb`.
 
-- [ ] Implement `Classifier` + training loop
-- [ ] Train the baseline (3 seeds) and save the best checkpoint
-- [ ] Per-class report + confusion matrix → `results/`
-- [ ] Two extra baselines for a fair comparison: **oversampling** of the rare class and **class-weighted loss**
+- [x] Implement `Classifier` + training loop
+- [x] Two extra baselines for a fair comparison: **oversampling** of the rare class and **class-weighted loss**
+- [ ] Train the baseline (3 strategies × 3 seeds) on a Colab GPU and save the best checkpoint
+- [ ] Per-class precision / recall / F1 + confusion matrices → `results/`
+- [ ] Write the interpretation in the notebook
 
 ---
 
