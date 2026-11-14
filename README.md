@@ -4,6 +4,8 @@ Generate synthetic dermoscopy images conditioned on a class, compare a **CVAE** 
 
 The full plan, with a mind map and progress checkboxes, is in [`impl.md`](impl.md).
 
+**New team member? Start with [`docs/GUIDE.md`](docs/GUIDE.md):** step-by-step setup, how to run each notebook, and the role of every file.
+
 ## Status
 
 | Step | Content | Status |
