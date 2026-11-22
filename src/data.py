@@ -66,15 +66,35 @@ class ArrayDataset(Dataset):
         return x, self.y[i]
 
 
-def make_loader(images, labels, batch_size=128, train=False, oversample=False, seed=0):
-    """DataLoader with num_workers=0. `oversample` draws each class equally often."""
+def make_loader(images, labels, batch_size=128, train=False, oversample=False, seed=0,
+                power=None, drop_last=False):
+    """DataLoader with num_workers=0.
+
+    power: class re-weighting of the sampler, weight of an image = count(class) ** -power
+           (0 or None = natural frequencies, 0.5 = sqrt-balanced, 1 = every class equally often).
+    oversample=True is the same as power=1 (used in S2).
+    """
     ds = ArrayDataset(images, labels, augment=train)
     gen = torch.Generator().manual_seed(seed)
-    if train and oversample:
-        weights = 1.0 / class_counts(labels)[labels]
+    if oversample:
+        power = 1.0
+    if train and power:
+        weights = class_counts(labels)[labels].astype(np.float64) ** (-power)
         sampler = WeightedRandomSampler(
             torch.as_tensor(weights, dtype=torch.double), num_samples=len(labels),
             replacement=True, generator=gen,
         )
-        return DataLoader(ds, batch_size=batch_size, sampler=sampler, num_workers=0)
-    return DataLoader(ds, batch_size=batch_size, shuffle=train, generator=gen, num_workers=0)
+        return DataLoader(ds, batch_size=batch_size, sampler=sampler, num_workers=0, drop_last=drop_last)
+    return DataLoader(ds, batch_size=batch_size, shuffle=train, generator=gen, num_workers=0,
+                      drop_last=drop_last)
+
+
+def sample_per_class(images, labels, n, seed=0):
+    """n random images of each class, ordered class by class -> (tensor in [-1, 1], labels)."""
+    rng = np.random.default_rng(seed)
+    idx = []
+    for c in range(NUM_CLASSES):
+        candidates = np.flatnonzero(labels == c)
+        idx.extend(rng.choice(candidates, size=n, replace=len(candidates) < n))
+    idx = np.asarray(idx)
+    return to_tensor(images[idx]), torch.from_numpy(labels[idx])

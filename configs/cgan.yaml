@@ -1,0 +1,22 @@
+# S3b - Conditional GAN, course version (Mirza & Osindero + DCGAN; GAN course, slides 10-24)
+
+data:
+  size: 64
+  root: data
+  batch_size: 128
+
+model:
+  z_dim: 64            # same latent size as the CVAE (same generator architecture)
+
+train:
+  # First run: 15 epochs (~760 steps) -> healthy dynamics but grid artifacts, purple tint and almost no
+  # class control: far too few steps for a GAN. Raised to 100 epochs (~5 000 steps, ~20 min on a T4 GPU).
+  epochs: 100
+  lr: 0.0002           # Adam lr = 2e-4 (course tips, slide 18)
+  beta1: 0.5           # Adam beta1 = 0.5 (course tips, slide 18)
+  real_label: 0.9      # label smoothing for real images (course tips, slide 18)
+  class_power: 0.5     # sampler: weight = count^-power (0 = natural, 0.5 = sqrt-balanced, 1 = balanced)
+  seed: 0
+
+sampling:
+  n_per_class: 8

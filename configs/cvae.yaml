@@ -1,0 +1,20 @@
+# S3a - Conditional VAE (AE/VAE course, slides 11-21)
+
+data:
+  size: 64
+  root: data
+  batch_size: 128
+
+model:
+  z_dim: 64            # size of the latent code z
+
+train:
+  epochs: 15
+  lr: 0.001            # Adam
+  kl_warmup_epochs: 5  # beta grows linearly from 0 to its value over these epochs (avoids posterior collapse)
+  betas: [0.5, 1.0, 2.0]   # beta-VAE experiment (slide 20); beta = 1 is the main model
+  class_power: 0.5     # sampler: weight = count^-power (0 = natural, 0.5 = sqrt-balanced, 1 = balanced)
+  seed: 0
+
+sampling:
+  n_per_class: 8       # images per class in the sample grids

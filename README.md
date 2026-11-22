@@ -13,7 +13,8 @@ The full plan, with a mind map and progress checkboxes, is in [`impl.md`](impl.m
 | S0 | Setup, repository structure | done |
 | S1 | Data: DermaMNIST 64 × 64, class statistics | done |
 | S2 | Baseline classifier (real data only) | done |
-| S3–S7 | Generative models, evaluation, demo, report | to do |
+| S3 | Generative models: CVAE (15 epochs, β = 0.5 / 1 / 2) and conditional GAN (100 epochs) | done |
+| S4–S7 | Synthetic sets, evaluation, demo, report | to do |
 
 ## Installation
 

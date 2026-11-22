@@ -221,6 +221,10 @@ On Colab/Kaggle: `!pip install -r requirements.txt` after cloning the repo.
 
 **Sampling during training:** sqrt-inverse-frequency sampler, so the rare classes are seen more often without being fully repeated. A full repeat would raise the memorization risk.
 
+**Code:** `src/models.py` (`CondGenerator`, `CVAE`, `CondDiscriminator`), `src/train_gen.py` (training loops, diversity), `configs/cvae.yaml`, `configs/cgan.yaml`, notebooks `03a_cvae.ipynb` and `03b_cgan.ipynb`. Both notebooks end with an export cell; locally run `python -m src.extract_results notebooks/<notebook>.ipynb`.
+
+- [x] Write the S3 code and notebooks (checked locally with 1 epoch on a small subset)
+
 #### S3a: CVAE
 
 - Encoder q(z | x, y): image + one-hot class maps (3+7 channels) → strided convs → `μ, log σ²` (two heads, as in the course).
@@ -231,7 +235,10 @@ On Colab/Kaggle: `!pip install -r requirements.txt` after cloning the repo.
 - Expected behaviour: stable and diverse, but **blurry** (hypothesis H1).
 
 - [ ] Implement encoder + reparameterisation + decoder
-- [ ] Train (~40–60 epochs on GPU), log the losses (reconstruction, KL)
+- [x] Train 15 epochs on a Colab GPU (`QUICK = True`: 10 epochs, β = 1 only), log the losses (reconstruction, KL)
+- [x] Add a clamp on log σ² (KL reached ~7·10⁹ at epoch 1 in the first run, recovered at epoch 2)
+
+**Result (15 epochs):** final KL 64.9 / 41.7 / 29.1 and val MSE 0.0119 / 0.0123 / 0.0131 for β = 0.5 / 1 / 2 (the β-VAE trade-off of the course). Images blurry (H1); class effect visible but weak.
 - [ ] Save sample grids per class every N epochs
 - [ ] β experiment: β = 0.5 / 1 / 2, same epochs, compare grids and FID
 - [ ] Swap the class with a fixed z: does only the lesion type change?
@@ -245,7 +252,10 @@ On Colab/Kaggle: `!pip install -r requirements.txt` after cloning the repo.
 - Expected behaviour: sharper images, but a risk of **mode collapse** and of **memorizing** the ~80 df images (H2, H3).
 
 - [ ] Implement G, D, BCE + non-saturating loss, label smoothing
-- [ ] Train (~60–100 epochs), log D/G losses and D(x), D(G(z)), save checkpoints
+- [x] First run: 15 epochs on a Colab GPU → healthy dynamics (D(x) 0.48, D(G(z)) 0.42) but grid artifacts, purple tint, almost no class control (only ~760 steps)
+- [x] Second run: **100 epochs** (~5 000 steps, ~20 min on GPU), log D/G losses and D(x), D(G(z)), save checkpoints (why: `docs/GUIDE.md`, section 6)
+
+**Result (100 epochs):** D(x) 0.46, D(G(z)) 0.44 at the end (near equilibrium). Class colours now follow the real data (mel dark brown/black, bkl brown, vasc purple/magenta, nv pink-red, df pale pink-brown); purple tint gone, faint grid pattern left. Diversity ratio 0.90–1.08 (df 0.90): no mode collapse. Epoch 100 is clearly better than epoch 51, so 100 epochs is kept.
 - [ ] Sample grids per class, check for mode collapse visually
 
 **Optional improvements** (only if the course version is unstable or collapses; report them as a separate experiment):

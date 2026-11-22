@@ -17,7 +17,7 @@ This guide is for every team member who clones the repository. Read it once from
 | S0 | Repository and environment setup | done |
 | S1 | Data exploration (`01_data.ipynb`) | done |
 | S2 | Baseline classifier on real data only (`02_baseline.ipynb`) | done |
-| S3 | Generative models: CVAE and conditional GAN | next |
+| S3 | Generative models: CVAE (`03a_cvae.ipynb`) and conditional GAN (`03b_cgan.ipynb`) | done |
 | S4–S7 | Synthetic sets, evaluation, demo, report | to do |
 
 The full plan, with a mind map and checkboxes, is in [`impl.md`](../impl.md).
@@ -92,7 +92,7 @@ Training 9 models takes **about 6 hours on a laptop CPU** but **about 15 minutes
 
 **Option A — Quick test on your PC (to check that everything works)**
 - In the third cell, set `QUICK = True` → **Run All**.
-- It trains 1 model for 2 epochs (about 5 minutes on CPU). The numbers are meaningless; **do not commit these results**.
+- It trains 1 model for 10 epochs (about 20 minutes on CPU). The numbers are only a test; **do not commit these results**.
 
 **Option B — Full run from VS Code with a Colab GPU**
 1. Select Kernel → **Colab → New Colab Server → GPU → T4**.
@@ -113,6 +113,26 @@ Training 9 models takes **about 6 hours on a laptop CPU** but **about 15 minutes
 > **Important:** on Colab, the code is cloned from GitHub. It runs **what is pushed**, not your unsaved local changes. Push your code changes before running on Colab.
 
 You do not have to rerun S2 unless you change the classifier: its results are already in `results/`. The only file you may need is `checkpoints/baseline_classifier.pt` (used in S5); ask the team for it (shared on Google Drive) or regenerate it with Option B or C.
+
+### Notebooks 3a and 3b — `03a_cvae.ipynb` and `03b_cgan.ipynb` (S3): run them on a GPU
+- **Where:** Colab GPU from VS Code (Option B). Run `03a` first, then `03b`.
+- **No git needed:** the first cell of these notebooks contains a copy of `src/` and `configs/` from your laptop (`CODE_ZIP = "..."`), and writes it onto the Colab machine. **After changing any file in `src/` or `configs/`, update that copy** before running again:
+  ```powershell
+  python -m src.sync_code notebooks\03a_cvae.ipynb notebooks\03b_cgan.ipynb
+  ```
+  If the notebook is open in VS Code, reload it from disk afterwards (close and reopen it).
+- **What they do:**
+  - `03a` trains three conditional VAEs (β = 0.5, 1 and 2, 15 epochs each);
+  - `03b` trains the conditional GAN (100 epochs, about 20 minutes; see section 6 for why not 15);
+  - each one shows real vs synthetic images, the evolution during training, the diversity per class, a "class swap" (same z, different class) and latent interpolations.
+- **Quick mode:** `QUICK = True` trains 10 epochs (and only β = 1 for the CVAE).
+- **Getting the results back (VS Code):** the last cell prints a long text. Save the notebook (Ctrl+S), then run locally:
+  ```powershell
+  python -m src.extract_results notebooks\03a_cvae.ipynb
+  python -m src.extract_results notebooks\03b_cgan.ipynb
+  ```
+- **Outputs:** `results/s3_cvae_*`, `results/s3_cgan_*`, and the models `checkpoints/cvae.pt` and `checkpoints/cgan_G.pt` (float16, used in S4; not in Git).
+- If the GAN images are still rough, raise `epochs` in `configs/cgan.yaml` again, then run `src.sync_code` before running the notebook.
 
 ---
 
@@ -135,6 +155,10 @@ You do not have to rerun S2 unless you change the classifier: its results are al
 | `src/train_clf.py` | Training loop, metrics (precision, recall, F1, confusion matrix) | Same training and evaluation for S2 and the S5 experiments |
 | `src/viz.py` | Plots: examples per class, confusion matrices | Same figures style everywhere |
 | `src/extract_results.py` | Recovers result files from a notebook run on Colab via VS Code | With the VS Code Colab kernel, files stay on Google's machine |
+| `configs/cvae.yaml`, `configs/cgan.yaml` | S3 settings: 15 epochs, learning rates, β values, label smoothing, sampler | Same reason as the classifier config: change experiments without touching the code |
+| `src/train_gen.py` | S3 training loops (CVAE, conditional GAN), sample generation, diversity measure | Both generative models trained and evaluated the same way |
+| `notebooks/03a_cvae.ipynb` | S3a: conditional VAE + β experiment | First generative model (course: AE/VAE) |
+| `notebooks/03b_cgan.ipynb` | S3b: conditional GAN (course version) | Second generative model (course: GAN), compared with the CVAE |
 | `notebooks/01_data.ipynb` | S1: data exploration | Understand the data and find the rare class |
 | `notebooks/02_baseline.ipynb` | S2: baseline classifier | Reference performance that synthetic images must beat |
 | `docs/GUIDE.md` | This guide | Lets every member set up and run the project alone |
@@ -156,6 +180,9 @@ Empty folders for later steps: `demo/` (S6 app + video), `report/` (final report
 | `results/s2_baseline_runs.json` | `02_baseline` | yes | All raw numbers of the 9 runs |
 | `checkpoints/clf_<strategy>_seed<n>.pt` | `02_baseline` | **no** | The 9 trained classifiers |
 | `checkpoints/baseline_classifier.pt` | `02_baseline` | **no** (share on Drive) | Reference classifier, used in S5 to evaluate the generated images |
+| `results/s3_cvae_*` | `03a_cvae` | yes | CVAE losses, samples, evolution, reconstructions, β table, diversity, class swap, interpolation |
+| `results/s3_cgan_*` | `03b_cgan` | yes | cGAN losses and D outputs, samples, evolution, diversity, class swap, interpolation |
+| `checkpoints/cvae.pt`, `checkpoints/cgan_G.pt` | `03a`, `03b` | **no** (share on Drive) | Main CVAE (β = 1) and cGAN generator, float16, used in S4 |
 
 ---
 
@@ -175,6 +202,28 @@ Empty folders for later steps: `demo/` (S6 app + video), `report/` (final report
 | Metrics: **precision, recall, F1, confusion matrix** | Accuracy would be misleading: predicting "nv" every time already gives 67 % accuracy |
 | Keep the best `none` model as **reference classifier** | Its features are specific to skin images; we use it in S5 to measure the quality of the generated images (the GAN course notes that ImageNet features suit medical images poorly) |
 | Data and models **not in Git** | Brief rule: no large files in the repository |
+| **Same generator** for the CVAE decoder and the cGAN | Fair comparison: only the training objective differs (ELBO vs adversarial game) |
+| cGAN = **course version** (BCE, non-saturating loss, label smoothing 0.9, Adam 2e-4 / β1 0.5, DCGAN layers) | Every choice can be justified from the GAN course during the presentation |
+| **β = 0.5 / 1 / 2** for the CVAE | β-VAE slide of the course: shows the trade-off between sharp reconstructions and a smooth latent space |
+| **sqrt-balanced sampler** for S3 | Rare classes are seen more often, but less than with full oversampling, which would push the models to memorize the 80 df images |
+| **CVAE: 15 epochs** | Enough: the reconstruction loss is almost flat at the end, and a VAE learns quickly because every image gets a direct reconstruction error |
+| **cGAN: first 15 epochs, then 100** | See below |
+| **log σ² clamped to [-10, 10]** in the CVAE encoder | In the first run the KL reached ~7 billion at epoch 1 because of the random initial weights (it recovered at epoch 2). The clamp prevents this explosion, which could otherwise turn into NaN; trained values stay far inside the range |
+
+### Why the cGAN went from 15 to 100 epochs
+
+We first trained **both models for 15 epochs**, the same budget for a fair first comparison and to keep runs short.
+
+- **CVAE after 15 epochs:** good. The losses had flattened, the β experiment followed the theory, and the images were blurry as the course predicts (the decoder outputs the average of possible images).
+- **cGAN after 15 epochs:** the training itself was healthy (at the end D(x) ≈ 0.48 and D(G(z)) ≈ 0.42, close to the ideal 0.5; no mode collapse), **but the images were not usable**:
+  - a regular **grid pattern** (checkerboard artifact of the transposed convolutions, typical of an under-trained GAN);
+  - a **purple / blue tint** that does not exist in the real images;
+  - almost **no class control**: with the same z, all classes looked the same.
+- **Why:** 15 epochs is only about **760 training steps**. A VAE gets a direct, pixel-by-pixel error signal on every image, so it learns quickly. A GAN only learns through the discriminator's judgement, in a two-player game, so it needs many more steps to learn colours, textures and the effect of the class. DCGAN-type models usually need thousands of steps.
+- **Decision:** **100 epochs** (about **5 000 steps**). On a T4 GPU one epoch takes ~12 s, so the run takes about **20 minutes**. The CVAE stays at 15 epochs.
+- **Result of the 100-epoch run:** the class now controls the image (mel dark brown/black, bkl brown, vasc purple/magenta, nv pink-red, df pale pink-brown), the purple tint is gone and only a faint grid pattern remains. Diversity ratio 0.90–1.08: no mode collapse. Training stayed balanced (D(x) 0.46, D(G(z)) 0.44).
+- **Could 50 epochs be enough?** The evolution figure (`results/s3_cgan_evolution.png`) shows epochs 1, 51 and 100: epoch 100 is clearly sharper and more class-specific than epoch 51, so we keep 100.
+- **Note on the diversity ratio:** after 15 epochs the cGAN had high pixel diversity (0.74–1.06), but this was misleading: noise and the grid pattern count as "diversity" when images are compared pixel by pixel. Always look at the images, not only at the numbers (GAN course, slide 18).
 
 **S2 result in one sentence:** trained on real data only, the classifier finds only about **12 %** of df images (df F1 0.205); oversampling raises df F1 to **0.464**. The synthetic images of S3–S5 will have to beat oversampling.
 
