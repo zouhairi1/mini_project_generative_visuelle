@@ -18,7 +18,7 @@ This guide is for every team member who clones the repository. Read it once from
 | S1 | Data exploration (`01_data.ipynb`) | done |
 | S2 | Baseline classifier on real data only (`02_baseline.ipynb`) | done |
 | S3 | Generative models: CVAE (`03a_cvae.ipynb`) and conditional GAN (`03b_cgan.ipynb`) | done |
-| S4 | Synthetic sets (`04_generate.ipynb`) | code ready |
+| S4 | Synthetic sets (`04_generate.ipynb`) | done |
 | S5–S7 | Evaluation, demo, report | to do |
 
 The full plan, with a mind map and checkboxes, is in [`impl.md`](../impl.md).

@@ -14,7 +14,8 @@ The full plan, with a mind map and progress checkboxes, is in [`impl.md`](impl.m
 | S1 | Data: DermaMNIST 64 × 64, class statistics | done |
 | S2 | Baseline classifier (real data only) | done |
 | S3 | Generative models: CVAE (15 epochs, β = 0.5 / 1 / 2) and conditional GAN (100 epochs) | done |
-| S4–S7 | Synthetic sets, evaluation, demo, report | to do |
+| S4 | Synthetic sets: 800 images per class per model, fixed seed, leak check, SYNTHETIC watermark | done |
+| S5–S7 | Evaluation, demo, report | to do |
 
 ## Installation
 

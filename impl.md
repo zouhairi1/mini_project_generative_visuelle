@@ -302,9 +302,11 @@ Only start this once phase 1 works end to end (S3a, S3b, S4, S5). The mask is a 
 
 - [x] Generation code with a fixed seed (`generate_set`, seed 2026) + reproducibility check
 - [x] Watermark function (`watermark`) and leak check (`assert_real_only`)
-- [ ] Run `04_generate.ipynb` → synthetic sets in `data/synthetic/`
-- [ ] `results/`: side-by-side grid of real, CVAE and cGAN images per class
-- [ ] Verify that no synthetic file is ever loaded in val/test code (leak check passes)
+- [x] Run `04_generate.ipynb` → synthetic sets in `data/synthetic/`
+- [x] `results/`: side-by-side grid of real, CVAE and cGAN images per class
+- [x] Verify that no synthetic file is ever loaded in val/test code (leak check passes)
+
+**Result:** 2 sets × 5 600 images (800 per class), 12 s each on CPU; regenerated identically (0 pixel difference); no synthetic image in val or test. CVAE images are smooth "average" lesions with weak class traits (vasc not red/purple); cGAN images are more varied with stronger class traits (vasc purple, mel brown/black) but a faint grid pattern.
 
 ---
 
