@@ -1,0 +1,7 @@
+# S4 - Generation of the synthetic sets (runs on the laptop CPU, about 1 minute)
+
+models: [cvae, cgan]   # checkpoints/cvae.pt (CVAE beta = 1) and checkpoints/cgan_G.pt (cGAN, 100 epochs)
+n_per_class: 800       # synthetic images per class and per model (7 classes -> 5 600 per model);
+                       # 800 covers the largest amount tested in S5 (+100 / +200 / +400 / +800 df images)
+seed: 2026             # fixed seed: the same images can be regenerated at any time
+z_dim: 64              # must match the S3 models

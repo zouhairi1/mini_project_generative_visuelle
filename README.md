@@ -36,7 +36,10 @@ Then run the notebooks in order:
 | Notebook | Step | Outputs in `results/` |
 |---|---|---|
 | `notebooks/01_data.ipynb` | S1 data exploration | class distribution, example images |
-| `notebooks/02_baseline.ipynb` | S2 baseline classifier | precision / recall / F1 tables, confusion matrices |
+| `notebooks/02_baseline.ipynb` | S2 baseline classifier (Colab GPU) | precision / recall / F1 tables, confusion matrices |
+| `notebooks/03a_cvae.ipynb` | S3a conditional VAE (Colab GPU) | samples, β experiment, diversity, interpolation |
+| `notebooks/03b_cgan.ipynb` | S3b conditional GAN (Colab GPU) | samples, losses, diversity, interpolation |
+| `notebooks/04_generate.ipynb` | S4 synthetic sets (laptop CPU) | set sizes, real vs CVAE vs cGAN, watermarked examples |
 
 Hyper-parameters are in `configs/`.
 

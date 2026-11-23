@@ -18,7 +18,8 @@ This guide is for every team member who clones the repository. Read it once from
 | S1 | Data exploration (`01_data.ipynb`) | done |
 | S2 | Baseline classifier on real data only (`02_baseline.ipynb`) | done |
 | S3 | Generative models: CVAE (`03a_cvae.ipynb`) and conditional GAN (`03b_cgan.ipynb`) | done |
-| S4–S7 | Synthetic sets, evaluation, demo, report | to do |
+| S4 | Synthetic sets (`04_generate.ipynb`) | code ready |
+| S5–S7 | Evaluation, demo, report | to do |
 
 The full plan, with a mind map and checkboxes, is in [`impl.md`](../impl.md).
 
@@ -134,6 +135,13 @@ You do not have to rerun S2 unless you change the classifier: its results are al
 - **Outputs:** `results/s3_cvae_*`, `results/s3_cgan_*`, and the models `checkpoints/cvae.pt` and `checkpoints/cgan_G.pt` (float16, used in S4; not in Git).
 - If the GAN images are still rough, raise `epochs` in `configs/cgan.yaml` again, then run `src.sync_code` before running the notebook.
 
+### Notebook 4 — `04_generate.ipynb` (S4): run it on your PC
+- **Where:** your PC, with the **`.venv` kernel** (not Colab): it only uses the trained generators, about 1 minute on CPU.
+- **Before:** `checkpoints/cvae.pt` and `checkpoints/cgan_G.pt` must exist (extracted from the S3 notebooks, or downloaded from the team's Google Drive).
+- **How:** select the `.venv` kernel → **Run All**.
+- **What it does:** generates 800 images per class with each model (fixed seed 2026), saves each set in its own file, checks that regenerating gives the same images, checks that val and test contain no synthetic image, and shows real vs CVAE vs cGAN plus watermarked examples.
+- **Outputs:** `data/synthetic/cvae_n800_seed2026.npz` and `data/synthetic/cgan_n800_seed2026.npz` (**not in Git**, about 1 minute to regenerate), `results/s4_*`.
+
 ---
 
 ## 5. Role of each file
@@ -159,6 +167,10 @@ You do not have to rerun S2 unless you change the classifier: its results are al
 | `src/train_gen.py` | S3 training loops (CVAE, conditional GAN), sample generation, diversity measure | Both generative models trained and evaluated the same way |
 | `notebooks/03a_cvae.ipynb` | S3a: conditional VAE + β experiment | First generative model (course: AE/VAE) |
 | `notebooks/03b_cgan.ipynb` | S3b: conditional GAN (course version) | Second generative model (course: GAN), compared with the CVAE |
+| `src/sync_code.py` | Copies `src/` and `configs/` into the first cell of the S3 notebooks | Lets the VS Code Colab kernel use the laptop code without git |
+| `configs/generate.yaml` | S4 settings: models, 800 images per class, seed 2026 | Fixed, documented generation |
+| `src/generate.py` | Loads the S3 generators, generates reproducible sets, saves / loads them, leak check, `SYNTHETIC` watermark | Synthetic data is created and handled in one place, with the brief's rules built in |
+| `notebooks/04_generate.ipynb` | S4: builds and checks the synthetic sets | Fixed datasets for the S5 experiments |
 | `notebooks/01_data.ipynb` | S1: data exploration | Understand the data and find the rare class |
 | `notebooks/02_baseline.ipynb` | S2: baseline classifier | Reference performance that synthetic images must beat |
 | `docs/GUIDE.md` | This guide | Lets every member set up and run the project alone |
@@ -183,6 +195,8 @@ Empty folders for later steps: `demo/` (S6 app + video), `report/` (final report
 | `results/s3_cvae_*` | `03a_cvae` | yes | CVAE losses, samples, evolution, reconstructions, β table, diversity, class swap, interpolation |
 | `results/s3_cgan_*` | `03b_cgan` | yes | cGAN losses and D outputs, samples, evolution, diversity, class swap, interpolation |
 | `checkpoints/cvae.pt`, `checkpoints/cgan_G.pt` | `03a`, `03b` | **no** (share on Drive) | Main CVAE (β = 1) and cGAN generator, float16, used in S4 |
+| `data/synthetic/<model>_n800_seed2026.npz` | `04_generate` | **no** (regenerate in 1 min) | The synthetic sets: images, labels, flag `synthetic=True` |
+| `results/s4_*` | `04_generate` | yes | Set sizes, real vs CVAE vs cGAN grid, watermarked examples |
 
 ---
 

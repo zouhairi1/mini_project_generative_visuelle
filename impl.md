@@ -122,8 +122,9 @@ mini_project/
 │   ├── 03a_cvae.ipynb
 │   ├── 03b_cgan.ipynb
 │   ├── 03c_masks.ipynb          # phase 2 only
-│   ├── 04_evaluation.ipynb      # quality + memorization + augmentation + TSTR
-│   └── 05_demo.ipynb
+│   ├── 04_generate.ipynb        # S4: synthetic sets
+│   ├── 05_evaluation.ipynb      # quality + memorization + augmentation + TSTR
+│   └── 06_demo.ipynb
 ├── src/
 │   ├── data.py          # loading, normalisation, balanced sampler
 │   ├── masks.py         # phase 2: Otsu pseudo-masks, mask bank + augmentation
@@ -293,13 +294,17 @@ Only start this once phase 1 works end to end (S3a, S3b, S4, S5). The mask is a 
 
 **What and why:** build fixed, reproducible synthetic datasets for the experiments.
 
-- For each model and each class, generate N images (for example 600 per class). In phase 2, masks come from the augmented mask bank.
+- For each model and each class, generate **800 images** (7 × 800 = 5 600 per model; 800 covers the largest S5 test, +800 df). In phase 2, masks come from the augmented mask bank.
+- **Runs on the laptop CPU** (about 1 minute): only the trained generators are needed, no GPU.
+- Code: `src/generate.py`, `configs/generate.yaml`, notebook `04_generate.ipynb`. Output files: `data/synthetic/<model>_n800_seed2026.npz` (not committed).
 - Store the images, labels (and masks in phase 2) and a flag `synthetic=True`. Every image saved for viewing gets a **"SYNTHETIC" watermark**. The training arrays stay clean but live in a separate file.
 - **Rule from the brief:** synthetic images are added **only to the training set**. Validation and test stay 100% real.
 
-- [ ] Generation script with a fixed seed
+- [x] Generation code with a fixed seed (`generate_set`, seed 2026) + reproducibility check
+- [x] Watermark function (`watermark`) and leak check (`assert_real_only`)
+- [ ] Run `04_generate.ipynb` → synthetic sets in `data/synthetic/`
 - [ ] `results/`: side-by-side grid of real, CVAE and cGAN images per class
-- [ ] Verify that no synthetic file is ever loaded in val/test code
+- [ ] Verify that no synthetic file is ever loaded in val/test code (leak check passes)
 
 ---
 
